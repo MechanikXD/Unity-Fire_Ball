@@ -1,0 +1,38 @@
+﻿using Core.Tower;
+using UnityEngine;
+
+namespace Player {
+    [RequireComponent(typeof(Rigidbody))]
+    public class PlayerBullet : MonoBehaviour {
+        private Rigidbody _body;
+        [SerializeField] private float _timeToLive;
+        [SerializeField] private Vector3 _moveSpeed;
+        private float _currentLiveTime;
+
+        private void Awake() => Initialize();
+
+        private void Update() => UpdateTimeToLive();
+
+        private void DestroySelf() => Destroy(gameObject);
+
+        private void OnCollisionEnter(Collision other) => DestroyTowerElement(other);
+        
+        private void Initialize() {
+            _currentLiveTime = 0f;
+            _body = GetComponent<Rigidbody>();
+            _body.linearVelocity = _moveSpeed;
+        }
+
+        private void UpdateTimeToLive() {
+            _currentLiveTime += Time.deltaTime;
+            if (_currentLiveTime > _timeToLive) DestroySelf();
+        }
+
+        private void DestroyTowerElement(Collision other) {
+            if (!other.gameObject.TryGetComponent<TowerElement>(out var element)) return;
+
+            element.TakeHit();
+            DestroySelf();
+        }
+    }
+}
