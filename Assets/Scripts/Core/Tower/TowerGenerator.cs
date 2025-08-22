@@ -10,7 +10,7 @@ namespace Core.Tower {
         [SerializeField] private TowerElement[] _elements;
         [SerializeField] private TowerElement _finalElement;
         [SerializeField] private GenerationType _type;
-
+        
         private Dictionary<GenerationType, Func<TowerElement[]>> _towerElementGetter;
         private GameObject _towerObject;
         // [SerializeField] private float _fallSpeed;

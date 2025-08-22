@@ -15,7 +15,7 @@ namespace Player {
 
         private void DestroySelf() => Destroy(gameObject);
 
-        private void OnCollisionEnter(Collision other) => DestroyTowerElement(other);
+        private void OnCollisionEnter(Collision other) => TryDestroyTowerElement(other);
         
         private void Initialize() {
             _currentLiveTime = 0f;
@@ -28,10 +28,9 @@ namespace Player {
             if (_currentLiveTime > _timeToLive) DestroySelf();
         }
 
-        private void DestroyTowerElement(Collision other) {
-            if (!other.gameObject.TryGetComponent<TowerElement>(out var element)) return;
-
-            element.TakeHit();
+        private void TryDestroyTowerElement(Collision other) {
+            if (other.gameObject.TryGetComponent<TowerElement>(out var element)) element.TakeHit();
+            
             DestroySelf();
         }
     }
