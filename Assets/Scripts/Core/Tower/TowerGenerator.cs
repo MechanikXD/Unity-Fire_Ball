@@ -12,12 +12,62 @@ namespace Core.Tower {
         [SerializeField] private GenerationType _type;
 
         private Dictionary<GenerationType, Func<TowerElement[]>> _towerElementGetter;
+        private GameObject _towerObject;
+        // [SerializeField] private float _fallSpeed;
+        private Action _unSubscriber;
 
+        private void OnEnable() => SubscribeToEvents();
+        
         private void Awake() {
             Initialize();
             GenerateTower();
         }
 
+        private void OnDisable() => UnsubscribeFromEvents();
+
+        private void GenerateTower() {
+            _towerObject = new GameObject("Tower") {
+                transform = {
+                    position = _origin.position,
+                    rotation = _origin.rotation
+                }
+            };
+            var towerTransform = _towerObject.transform;
+            
+            var elements = _towerElementGetter[_type]();
+            var totalHeight = elements[0].Height / 2f;
+            
+            for (var i = 0; i < _towerSize; i++) {
+                var newPosition = new Vector3(0, totalHeight, 0);
+                Instantiate(elements[i], newPosition, Quaternion.identity, towerTransform);
+                totalHeight += elements[i].Height;
+            }
+            
+            var lastPosition = new Vector3(0, totalHeight, 0);
+            var instance = Instantiate(_finalElement, lastPosition, Quaternion.identity,
+                towerTransform);
+            instance.SetIsLastElement();
+        }
+        
+        private void UnsubscribeFromEvents() => _unSubscriber();
+        
+        private void SubscribeToEvents() {
+            void LowerTowerOnElementDestroyed(TowerElementDestroyedEventArgs args) {
+                // TODO: Move object instead of teleporting it
+                var pos = _towerObject.transform.position;
+                pos.y -= args.Height;
+                _towerObject.transform.position = pos;
+            }
+
+            TowerElement.TowerElementDestroyed += LowerTowerOnElementDestroyed;
+            // TowerElement.FinalTowerElementDestroyed += FinishGame;
+
+            _unSubscriber = () => {
+                TowerElement.TowerElementDestroyed -= LowerTowerOnElementDestroyed;
+                // TowerElement.FinalTowerElementDestroyed -= FinishGame;
+            };
+        }
+        
         private void Initialize() {
             _towerElementGetter = new Dictionary<GenerationType, Func<TowerElement[]>> {
                 [GenerationType.Random] = () => {
@@ -59,28 +109,6 @@ namespace Core.Tower {
                     return elements;
                 }
             };
-        }
-
-        private void GenerateTower() {
-            var towerObject = new GameObject("Tower") {
-                transform = {
-                    position = _origin.position,
-                    rotation = _origin.rotation
-                }
-            };
-            var towerTransform = towerObject.transform;
-            
-            var elements = _towerElementGetter[_type]();
-            var totalHeight = elements[0].Height / 2f;
-            
-            for (var i = 0; i < _towerSize; i++) {
-                var newPosition = new Vector3(0, totalHeight, 0);
-                Instantiate(elements[i], newPosition, Quaternion.identity, towerTransform);
-                totalHeight += elements[i].Height;
-            }
-            
-            var lastPosition = new Vector3(0, totalHeight, 0);
-            Instantiate(_finalElement, lastPosition, Quaternion.identity, towerTransform);
         }
     }
 }
