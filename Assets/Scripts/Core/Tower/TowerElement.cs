@@ -16,7 +16,7 @@ namespace Core.Tower {
 
         public void SetIsLastElement() => _isFinalElement = true;
 
-        private void TakeHit() {
+        public void TakeHit() {
             _hitsTaken++;
             if (_hitsTaken >= _hitsToDestroy) DestroySelf();
         }
@@ -29,10 +29,6 @@ namespace Core.Tower {
             
             if (_destroyParticles != null) _destroyParticles.Play();
             Destroy(gameObject);
-        }
-
-        private void OnCollisionEnter(Collision other) {
-            // if (other.gameObject.TryGetComponent<PlayerBullet>(out _)) TakeHit();
         }
     }
 }
