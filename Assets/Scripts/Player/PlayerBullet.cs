@@ -9,22 +9,26 @@ namespace Player {
         [SerializeField] private Vector3 _moveSpeed;
         private float _currentLiveTime;
 
-        private void Awake() {
+        private void Awake() => Initialize();
+
+        private void Update() => UpdateTimeToLive();
+
+        private void DestroySelf() => Destroy(gameObject);
+
+        private void OnCollisionEnter(Collision other) => DestroyTowerElement(other);
+        
+        private void Initialize() {
             _currentLiveTime = 0f;
             _body = GetComponent<Rigidbody>();
             _body.linearVelocity = _moveSpeed;
         }
 
-        private void Update() {
+        private void UpdateTimeToLive() {
             _currentLiveTime += Time.deltaTime;
             if (_currentLiveTime > _timeToLive) DestroySelf();
         }
 
-        private void DestroySelf() {
-            Destroy(gameObject);
-        }
-
-        private void OnCollisionEnter(Collision other) {
+        private void DestroyTowerElement(Collision other) {
             if (!other.gameObject.TryGetComponent<TowerElement>(out var element)) return;
 
             element.TakeHit();

@@ -10,6 +10,7 @@ namespace Player {
         [SerializeField] private Transform _shootOrigin;
         [SerializeField] private float _delayBetweenShots;
         private bool _isShooting;
+        private bool _isDelayed;
         private PlayerInput _playerInput;
         private InputAction _pressAction;
         private const string PressActionKey = "Press";
@@ -17,10 +18,40 @@ namespace Player {
         private Coroutine _shootCoroutine;
         private Action _unSubscriber;
 
-        private void Awake() {
+        private void Awake() => Initialize();
+
+        private void OnEnable() => SubscribeToEvents();
+
+        private void OnDisable() {
+            UnsubscribeFromEvents();
+            StopCoroutineOnDisable();
+        }
+
+        private IEnumerator ShootWhilePressed() {
+            while (_isShooting) {
+                if (_isDelayed) yield break;
+                Instantiate(_bulletPrefab, _shootOrigin.position, _shootOrigin.rotation, _shootOrigin);
+                _isDelayed = true;
+                yield return new WaitForSeconds(_delayBetweenShots);
+                _isDelayed = false;
+            }
+        }
+
+        private void UnsubscribeFromEvents() => _unSubscriber();
+
+        private void StopCoroutineOnDisable() {
+            if (_shootCoroutine == null) return;
+
+            StopCoroutine(_shootCoroutine);
+            _shootCoroutine = null;
+        }
+        
+        private void Initialize() {
             _playerInput = GetComponent<PlayerInput>();
             _pressAction = _playerInput.actions[PressActionKey];
+        }
 
+        private void SubscribeToEvents() {
             void StartShooting(InputAction.CallbackContext _) {
                 _isShooting = true;
                 StartCoroutine(ShootWhilePressed());
@@ -35,27 +66,6 @@ namespace Player {
                 _pressAction.started -= StartShooting;
                 _pressAction.canceled -= StopShooting;
             };
-        }
-
-        private void OnDisable() {
-            UnsubscribeFromEvents();
-            StopCoroutineOnDisable();
-        }
-
-        private IEnumerator ShootWhilePressed() {
-            while (_isShooting) {
-                Instantiate(_bulletPrefab, _shootOrigin.position, _shootOrigin.rotation, _shootOrigin);
-                yield return new WaitForSeconds(_delayBetweenShots);
-            }
-        }
-
-        private void UnsubscribeFromEvents() => _unSubscriber();
-
-        private void StopCoroutineOnDisable() {
-            if (_shootCoroutine == null) return;
-
-            StopCoroutine(_shootCoroutine);
-            _shootCoroutine = null;
         }
     }
 }
