@@ -1,66 +1,44 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Core.Obstacle {
     public class MovingObstacle : MonoBehaviour {
-        [SerializeField] private MoveType _type;
-        private Dictionary<MoveType, Func<Action>> _initialize;
-        private Action _moveAction;
-
-        [Header("Bounce Movement")]
         [SerializeField] private float _moveSpeed;
         [SerializeField] private Transform _firstPoint;
         [SerializeField] private Transform _secondPoint;
-        [SerializeField] private float _margin;
-        private bool _isMovingToSecond;
+
+        private Vector3 _firstPosition;
+        private Vector3 _secondPosition;
+        private bool _isMovingForward;
         private Vector3 _moveVector;
+        [SerializeField] private float _distanceMargin;
 
-        [Header("Pivot")]
-        [SerializeField] private Vector3 _rotateSpeed;
-        [SerializeField] private Transform _pivot;
-        [SerializeField] private Vector3 _radius;
+        private void Awake() => Initialize();
 
-        private void Awake() {
-            _initialize = new Dictionary<MoveType, Func<Action>> {
-                [MoveType.Pivot] = () => {
-                    transform.localPosition = _radius;
+        private void Update() => MoveBackAndForth();
+        
+        private void Initialize() {
+            _firstPosition = _firstPoint.position;
+            _secondPosition = _secondPoint.position;
+            
+            _isMovingForward = true;
+            _moveVector = _secondPosition - _firstPosition;
 
-                    return () => transform.RotateAround(_pivot.position, _rotateSpeed.normalized,
-                        _rotateSpeed.magnitude);
-                },
-                [MoveType.Bounce] = () => {
-                    var firstPosition = _firstPoint.position;
-                    var secondPosition = _secondPoint.position;
-                    
-                    transform.localPosition = firstPosition;
-                    _moveVector = firstPosition - secondPosition;
-
-                    return () => {
-                        if (_isMovingToSecond) {
-                            transform.Translate(
-                                -_moveVector.normalized * _moveSpeed * Time.deltaTime);
-
-                            if (IsNearPoint(transform, secondPosition, _margin)) {
-                                _isMovingToSecond = false;
-                            }
-                        }
-                        else {
-                            transform.Translate(_moveVector.normalized * _moveSpeed *
-                                                Time.deltaTime);
-
-                            if (IsNearPoint(transform, firstPosition, _margin)) {
-                                _isMovingToSecond = true;
-                            }
-                        }
-                    };
-                }
-            };
-            _moveAction = _initialize[_type]();
+            transform.position = _firstPosition;
         }
 
-        private void Update() {
-            _moveAction();
+        private void MoveBackAndForth() {
+            if (_isMovingForward) {
+                transform.Translate(_moveVector * (_moveSpeed * Time.deltaTime));
+
+                if (IsNearPoint(transform, _secondPosition, _distanceMargin))
+                    _isMovingForward = false;
+            }
+            else {
+                transform.Translate(-_moveVector * (_moveSpeed * Time.deltaTime));
+
+                if (IsNearPoint(transform, _firstPosition, _distanceMargin))
+                    _isMovingForward = true;
+            }
         }
 
         private static bool IsNearPoint(Transform obj, Vector3 point, float margin) {
