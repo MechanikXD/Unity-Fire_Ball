@@ -19,7 +19,7 @@ namespace Core.Obstacle {
 
         private void RotateObstacle() {
             transform.RotateAround(_pivotPosition, _rotateSpeed.normalized,
-                _rotateSpeed.magnitude);
+                _rotateSpeed.magnitude * Time.deltaTime);
         }
     }
 }

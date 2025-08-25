@@ -74,7 +74,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _timeToLive: 10
-  _moveSpeed: {x: 0, y: 0, z: 2}
+  _moveSpeed: {x: 0, y: 0, z: 4}
 --- !u!1 &7515996287359443557
 GameObject:
   m_ObjectHideFlags: 0

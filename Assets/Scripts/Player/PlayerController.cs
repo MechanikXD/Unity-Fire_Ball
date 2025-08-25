@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Core.Game;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,6 +27,8 @@ namespace Player {
             UnsubscribeFromEvents();
             StopCoroutineOnDisable();
         }
+
+        private void OnAnyKey() => GameManager.Instance.StartGame();
 
         private IEnumerator ShootWhilePressed() {
             while (_isShooting) {
