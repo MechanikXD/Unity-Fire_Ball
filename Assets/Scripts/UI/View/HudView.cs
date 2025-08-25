@@ -8,8 +8,10 @@ namespace UI.View {
         [SerializeField] private TMP_Text _countdown;
 
         private void Update() {
-            if (!ThisCanvas.enabled) return;
+            if (ThisCanvas.enabled) UpdateCountdown();
+        }
 
+        private void UpdateCountdown() {
             _countdown.SetText(TimeSpan.FromSeconds(GameManager.Instance.CurrentTime)
                 .ToString(@"mm\:ss"));
         }

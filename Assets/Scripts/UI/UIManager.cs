@@ -10,21 +10,20 @@ namespace UI {
         public static UIManager Instance;
         [SerializeField] private CanvasBase[] _canvases;
         private int _activeCanvasIndex;
-
+        /// <summary>
+        /// Store canvases within dictionary for quick access.
+        /// (By Type; Index to access them in array above)
+        /// </summary>
         private Dictionary<Type, (int index, CanvasBase canvas)> _canvasByType;
 
-        private void OnEnable() {
-            SubscribeToEvents();
-        }
+        private void OnEnable() => SubscribeToEvents();
 
         private void Awake() {
             ToSingleton();
             TypeCanvases();
         }
 
-        private void OnDisable() {
-            UnSubscribeFromEvents();
-        }
+        private void OnDisable() => UnSubscribeFromEvents();
 
         private void Start() {
             DisableAllCanvases();
@@ -49,7 +48,9 @@ namespace UI {
 
             Instance = this;
         }
-
+        /// <summary>
+        /// Defines types of canvas and puts them into the dictionary
+        /// </summary>
         private void TypeCanvases() {
             _canvasByType = new Dictionary<Type, (int index, CanvasBase canvas)>();
             for (var i = 0; i < _canvases.Length; i++) {
@@ -82,7 +83,9 @@ namespace UI {
         }
 
         public T GetCanvas<T>() where T : CanvasBase => GetCanvasWithIndex<T>().canvas;
-
+        /// <summary>
+        /// Returns tuple stored in the dictionary with canvas (of given type) and it's index
+        /// </summary>
         private (int index, T canvas) GetCanvasWithIndex<T>() where T : CanvasBase {
             if (_canvasByType.ContainsKey(typeof(T)))
                 return ((int, T))_canvasByType[typeof(T)];

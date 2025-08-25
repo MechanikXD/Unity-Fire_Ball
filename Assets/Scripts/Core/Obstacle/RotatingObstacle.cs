@@ -18,6 +18,7 @@ namespace Core.Obstacle {
         }
 
         private void RotateObstacle() {
+            // Have to use Time.deltaTime since otherwise it's not affected by in game time.
             transform.RotateAround(_pivotPosition, _rotateSpeed.normalized,
                 _rotateSpeed.magnitude * Time.deltaTime);
         }

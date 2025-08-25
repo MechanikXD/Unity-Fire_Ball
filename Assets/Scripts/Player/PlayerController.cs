@@ -27,12 +27,12 @@ namespace Player {
             UnsubscribeFromEvents();
             StopCoroutineOnDisable();
         }
-
+        // Used only to start game for now 
         private void OnAnyKey() => GameManager.Instance.StartGame();
 
         private IEnumerator ShootWhilePressed() {
             while (_isShooting) {
-                if (_isDelayed) yield break;
+                if (_isDelayed) yield break; // <- Prevents object spamming 
                 Instantiate(_bulletPrefab, _shootOrigin.position, _shootOrigin.rotation, _shootOrigin);
                 _isDelayed = true;
                 yield return new WaitForSeconds(_delayBetweenShots);

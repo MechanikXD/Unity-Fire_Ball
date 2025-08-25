@@ -4,10 +4,10 @@ using UnityEngine;
 namespace Core.Tower {
     public class TowerElement : MonoBehaviour {
         [SerializeField] private int _hitsToDestroy;
-        [SerializeField] private ParticleSystem _destroyParticles;
         private int _hitsTaken;
-        [SerializeField] private float _objectHeight;
+        [SerializeField] private float _objectHeight; // Needed for correct tower falling
         private bool _isFinalElement;
+        [SerializeField] private ParticleSystem _destroyParticles;
 
         public static event Action<TowerElementDestroyedEventArgs> TowerElementDestroyed;
         public static event Action<TowerElementDestroyedEventArgs> FinalTowerElementDestroyed; 
@@ -20,7 +20,9 @@ namespace Core.Tower {
             _hitsTaken++;
             if (_hitsTaken >= _hitsToDestroy) DestroySelf();
         }
-
+        /// <summary>
+        /// Small wrapper function that does additional things alongside destroying the object.
+        /// </summary>
         private void DestroySelf() {
             var destroyedData = new TowerElementDestroyedEventArgs(_objectHeight, _isFinalElement);
             

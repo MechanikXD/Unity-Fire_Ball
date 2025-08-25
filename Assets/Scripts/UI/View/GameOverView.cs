@@ -32,7 +32,9 @@ namespace UI.View {
             _restartButton.onClick.RemoveListener(GameManager.Instance.RestartScene);
             _exitButton.onClick.RemoveListener(GameManager.ExitApplication);
         }
-        
+        /// <summary>
+        /// Disables objects that should not be visible everytime in end screen
+        /// </summary>
         private void UnloadEndScreen() {
             foreach (var star in _stars) {
                 star.gameObject.SetActive(false);
@@ -40,7 +42,10 @@ namespace UI.View {
 
             _screenTitle.SetText(string.Empty);
         }
-
+        /// <summary>
+        /// Enables and adjusts values from given event args.
+        /// Prepares end screen to be shown.
+        /// </summary>
         private void LoadEndScreen(GameEndEventArgs eventArgs) {
             _screenTitle.SetText(eventArgs.GameState.ToString());
 
@@ -52,11 +57,13 @@ namespace UI.View {
 
         public override void EnableCanvas() {
             base.EnableCanvas();
+            // NOTE: TimeScale should be handled within UIManager
             Time.timeScale = 0f;
         }
 
         public override void DisableCanvas() {
             base.DisableCanvas();
+            // NOTE: TimeScale should be handled within UIManager
             Time.timeScale = 1f;
         }
     }

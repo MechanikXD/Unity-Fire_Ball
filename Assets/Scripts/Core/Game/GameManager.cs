@@ -7,20 +7,28 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 namespace Core.Game {
+    /// <summary>
+    /// Game Manager handles time and state of the game
+    /// </summary>
     public class GameManager : MonoBehaviour {
+        public static GameManager Instance;
+        // Hardcoded since we only have one scene. Should be somewhere in LevelSettings realistically. 
+        [Header("Time Related")]
         [SerializeField] private float _timeToComplete;
-        private float _currentTime;
-        private bool _gameWasStarted;
-        private bool _inGame;
         [SerializeField] private float _bestTime;
         [SerializeField] private float _goodTime;
         [SerializeField] private float _okTime;
-        public static GameManager Instance;
+        private float _currentTime;
+        
+        private bool _gameWasStarted;
+        private bool _inGame;
 
         public bool InGame => _inGame;
-
+        
         public static event Action<GameEndEventArgs> GameEnd;
-
+        /// <summary>
+        /// Current remaining time for this level
+        /// </summary>
         public float CurrentTime => _currentTime;
 
         private void OnEnable() => SubscribeToEvents();
@@ -31,17 +39,19 @@ namespace Core.Game {
         
         private void Update() {
             if (!_inGame) return;
-
+            // Decrease remaining time
             _currentTime -= Time.deltaTime;
-
+            // Time has ran out
             if (_currentTime > 0) return;
 
             _inGame = false;
-
+            // Finish game with defeat
             GameEnd?.Invoke(new GameEndEventArgs(_currentTime, GameEndState.Defeat,
                 PlayerScore.None));
         }
-
+        /// <summary>
+        /// Starts game and countdown to complete the level
+        /// </summary>
         public void StartGame() {
             if (_gameWasStarted) return;
             
@@ -50,7 +60,10 @@ namespace Core.Game {
             _currentTime = _timeToComplete;
             UIManager.Instance.SetActiveCanvas<HudView>();
         }
-
+        /// <summary>
+        /// Finishes the game and invokes GameEnd event.
+        /// Calling this function is always results in Victory.
+        /// </summary>
         private void FinishGame(TowerElementDestroyedEventArgs _) {
             _inGame = false;
 

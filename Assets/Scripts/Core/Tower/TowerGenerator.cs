@@ -4,16 +4,19 @@ using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Core.Tower {
+    /// <summary>
+    /// Must be present on the scene to create tower.
+    /// </summary>
     public class TowerGenerator : MonoBehaviour {
         [SerializeField] private Transform _origin;
-        [SerializeField] private int _towerSize;
+        [SerializeField] private int _towerSize;    // Number of tower elements
         [SerializeField] private TowerElement[] _elements;
         [SerializeField] private TowerElement _finalElement;
         [SerializeField] private GenerationType _type;
         
         private Dictionary<GenerationType, Func<TowerElement[]>> _towerElementGetter;
         private GameObject _towerObject;
-        // [SerializeField] private float _fallSpeed;
+        // Future proof: [SerializeField] private float _fallSpeed;
         private Action _unSubscriber;
 
         private void OnEnable() => SubscribeToEvents();
@@ -24,8 +27,12 @@ namespace Core.Tower {
         }
 
         private void OnDisable() => UnsubscribeFromEvents();
-
+        /// <summary>
+        /// Generates tower as well as initializes _towerObject.
+        /// </summary>
         private void GenerateTower() {
+            // All tower elements are parented to this one,
+            // So only this object should be moved to lower tower.
             _towerObject = new GameObject("Tower") {
                 transform = {
                     position = _origin.position,
@@ -33,7 +40,7 @@ namespace Core.Tower {
                 }
             };
             var towerTransform = _towerObject.transform;
-            
+            // Place tower elements
             var elements = _towerElementGetter[_type]();
             var totalHeight = elements[0].Height / 2f;
             
@@ -42,7 +49,7 @@ namespace Core.Tower {
                 Instantiate(elements[i], newPosition, Quaternion.identity, towerTransform);
                 totalHeight += elements[i].Height;
             }
-            
+            // Final tower element
             var lastPosition = new Vector3(0, totalHeight, 0);
             var instance = Instantiate(_finalElement, lastPosition, Quaternion.identity,
                 towerTransform);
@@ -60,15 +67,15 @@ namespace Core.Tower {
             }
 
             TowerElement.TowerElementDestroyed += LowerTowerOnElementDestroyed;
-            // TowerElement.FinalTowerElementDestroyed += FinishGame;
 
             _unSubscriber = () => {
                 TowerElement.TowerElementDestroyed -= LowerTowerOnElementDestroyed;
-                // TowerElement.FinalTowerElementDestroyed -= FinishGame;
             };
         }
         
         private void Initialize() {
+            // This dictionary returns an array of tower element and in which order they should be placed.
+            // Fancy way to avoid using switch statement.  
             _towerElementGetter = new Dictionary<GenerationType, Func<TowerElement[]>> {
                 [GenerationType.Random] = () => {
                     var elements = new TowerElement[_towerSize];

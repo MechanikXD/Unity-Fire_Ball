@@ -5,13 +5,14 @@ namespace Core.Obstacle {
         [SerializeField] private float _moveSpeed;
         [SerializeField] private Transform _firstPoint;
         [SerializeField] private Transform _secondPoint;
-
+        [SerializeField] private float _distanceMargin; // Min distance to count point as reached.
+        // Some cached values.
         private Vector3 _firstPosition;
         private Vector3 _secondPosition;
-        private bool _isMovingForward;
         private Vector3 _moveVector;
-        [SerializeField] private float _distanceMargin;
 
+        private bool _isMovingForward;
+        
         private void Awake() => Initialize();
 
         private void Update() => MoveBackAndForth();
