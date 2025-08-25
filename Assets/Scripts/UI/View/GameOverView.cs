@@ -9,25 +9,28 @@ namespace UI.View {
         [SerializeField] private TMP_Text _screenTitle;
         [SerializeField] private Image[] _stars;
 
-        private void OnEnable() {
-            SubscribeToEvents();
-        }
+        [SerializeField] private Button _restartButton;
+        [SerializeField] private Button _exitButton;
+
+        private void OnEnable() => SubscribeToEvents();
 
         protected override void Awake() {
             base.Awake();
             UnloadEndScreen();
         }
 
-        private void OnDisable() {
-            UnSubscribeFromEvents();
-        }
+        private void OnDisable() => UnSubscribeFromEvents();
 
         private void SubscribeToEvents() {
             GameManager.GameEnd += LoadEndScreen;
+            _restartButton.onClick.AddListener(GameManager.Instance.RestartScene);
+            _exitButton.onClick.AddListener(GameManager.ExitApplication);
         }
         
         private void UnSubscribeFromEvents() {
             GameManager.GameEnd -= LoadEndScreen;
+            _restartButton.onClick.RemoveListener(GameManager.Instance.RestartScene);
+            _exitButton.onClick.RemoveListener(GameManager.ExitApplication);
         }
         
         private void UnloadEndScreen() {
@@ -45,6 +48,16 @@ namespace UI.View {
             for (var i = 0; i < starCount; i++) {
                 _stars[i].gameObject.SetActive(true);
             }
+        }
+
+        public override void EnableCanvas() {
+            base.EnableCanvas();
+            Time.timeScale = 0f;
+        }
+
+        public override void DisableCanvas() {
+            base.DisableCanvas();
+            Time.timeScale = 1f;
         }
     }
 }
